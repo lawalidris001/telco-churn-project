@@ -5,7 +5,18 @@ from pydantic import BaseModel
 import pandas as pd
 import joblib
 from pathlib import Path
+import logging
 
+# --------------------------------------------------
+# Logging
+# --------------------------------------------------
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------
 # Paths
@@ -101,6 +112,14 @@ def predict(customer: CustomerData):
     probability = model.predict_proba(input_data)[0, 1]
 
     prediction = int(probability >= threshold)
+
+
+        logger.info(
+    "Prediction made | probability=%.4f | threshold=%.2f | prediction=%d",
+    probability,
+    threshold,
+    prediction
+    )
 
     return {
         "churn_probability": round(float(probability), 4),
