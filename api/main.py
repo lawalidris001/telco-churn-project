@@ -114,7 +114,7 @@ def predict(customer: CustomerData):
     prediction = int(probability >= threshold)
 
 
-        logger.info(
+    logger.info(
     "Prediction made | probability=%.4f | threshold=%.2f | prediction=%d",
     probability,
     threshold,
