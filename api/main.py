@@ -65,6 +65,15 @@ app.mount(
 )
 
 
+
+prediction_count = 0
+churn_prediction_count = 0
+no_churn_prediction_count = 0
+
+
+
+
+
 # --------------------------------------------------
 # Load trained model
 # --------------------------------------------------
@@ -123,6 +132,20 @@ def health():
 
 
 # --------------------------------------------------
+# monitoring endpoint
+# --------------------------------------------------
+
+
+@app.get("/monitoring")
+def monitoring():
+    return {
+        "total_predictions": prediction_count,
+        "churn_predictions": churn_prediction_count,
+        "no_churn_predictions": no_churn_prediction_count
+    }
+
+
+# --------------------------------------------------
 # Prediction
 # --------------------------------------------------
 
@@ -134,6 +157,15 @@ def predict(customer: CustomerData):
     probability = model.predict_proba(input_data)[0, 1]
 
     prediction = int(probability >= threshold)
+
+    global prediction_count, churn_prediction_count, no_churn_prediction_count
+
+    prediction_count += 1
+
+    if prediction == 1:
+        churn_prediction_count += 1
+    else:
+        no_churn_prediction_count += 1
 
 
     logger.info(
