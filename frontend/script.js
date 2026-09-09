@@ -27,7 +27,7 @@ form.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("/predict", {
+        const response = await fetch("/frontend-predict", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

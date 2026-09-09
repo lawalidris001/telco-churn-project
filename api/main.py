@@ -8,6 +8,14 @@ from pathlib import Path
 import logging
 import time
 from fastapi import Request
+import os
+from fastapi import Header, HTTPException
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 # --------------------------------------------------
 # Logging
@@ -149,8 +157,7 @@ def monitoring():
 # Prediction
 # --------------------------------------------------
 
-@app.post("/predict")
-def predict(customer: CustomerData):
+def run_prediction(customer: CustomerData):
 
     input_data = pd.DataFrame([customer.model_dump()])
 
@@ -167,12 +174,11 @@ def predict(customer: CustomerData):
     else:
         no_churn_prediction_count += 1
 
-
     logger.info(
-    "Prediction made | probability=%.4f | threshold=%.2f | prediction=%d",
-    probability,
-    threshold,
-    prediction
+        "Prediction made | probability=%.4f | threshold=%.2f | prediction=%d",
+        probability,
+        threshold,
+        prediction
     )
 
     return {
@@ -185,3 +191,26 @@ def predict(customer: CustomerData):
             else "Likely to stay"
         )
     }
+
+
+
+
+@app.post("/predict")
+def predict(customer: CustomerData, x_api_key: str = Header(None)):
+
+    if x_api_key != API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing API key"
+        )
+
+    return run_prediction(customer)
+
+
+
+
+
+@app.post("/frontend-predict")
+def frontend_predict(customer: CustomerData):
+
+    return run_prediction(customer)
